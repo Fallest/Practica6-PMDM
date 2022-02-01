@@ -7,16 +7,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 
 /**
- * TO-DO:
- * -Enlace del botón "My Orders" al panel Orders.
- * -Enlace del botón "New Order" al panel NewTransaction.
- * 
- * -DatePicker para cambiar la fecha de registro (solo disponible en la cuenta admin).
- * -Posibilidad de cambiasr el NIF desde la cuenta admin, validándolo.
+ * TO-DO: -DatePicker para cambiar la fecha de registro (solo disponible en la
+ * cuenta admin). -Posibilidad de cambiasr el NIF desde la cuenta admin,
+ * validándolo.
  */
 public class Profile extends javax.swing.JPanel {
 
     private static Profile profile = new Profile();
+
     /**
      * Creates new form Profile
      */
@@ -29,16 +27,16 @@ public class Profile extends javax.swing.JPanel {
     }
 
     /**
-     * Función para inicializar los valores de las etiquetas y botones dependiendo
-     * del tipo de usuario.
+     * Función para inicializar los valores de las etiquetas y botones
+     * dependiendo del tipo de usuario.
      */
     public static void init() {
         User user = MainFrame.getUser();
         if (user != null && user.isDelivery()) {
             // Si es un repartidor:
-            DeliveryPerson del = (DeliveryManager.select("where del_cod = " + 
-                    user.getUsrName())).get(0);
-            
+            DeliveryPerson del = (DeliveryManager.select("where del_cod = "
+                    + user.getUsrName())).get(0);
+
             // Asignamos valores a las labels
             profile.typeUser.setText("Delivery");
             profile.name.setText(del.getDel_name());
@@ -48,18 +46,18 @@ public class Profile extends javax.swing.JPanel {
             profile.attr2.setText(del.getCompany());
             profile.image.setText("");
             profile.image.setIcon(new ImageIcon("./src/Data/" + del.getCompany().toLowerCase() + ".png"));
-            
+
             // Desactivamos los botones que no puede usar y modificamos el botón
             // de "pedidos" a "repartos".
             profile.changePicture.setVisible(false);
             profile.changeClientNif.setVisible(false);
             profile.changeRegDate.setVisible(false);
-            profile.newOrder.setVisible(false);
+            profile.newTransaction.setVisible(false);
             profile.orders.setText("My Deliveries");
         } else if (user != null && !user.isDelivery()) {
             // Si es un cliente
-            Client cli = (ClientManager.select("where nif = " + 
-                    user.getUsrName())).get(0);
+            Client cli = (ClientManager.select("where nif = "
+                    + user.getUsrName())).get(0);
             profile.typeUser.setText("Client");
             profile.name.setText(String.valueOf(cli.getNif()));
             profile.attr1Name.setText("Address:");
@@ -68,11 +66,11 @@ public class Profile extends javax.swing.JPanel {
             profile.attr2.setText(cli.getReg_date().toString());
             profile.image.setText("");
             profile.image.setIcon(new ImageIcon("./src/Data/" + cli.getPic().trim() + ".jpg"));
-            
+
             // Desactivamos los botones que no puede usar
             profile.changeClientNif.setVisible(false);
             profile.changeRegDate.setVisible(false);
-        } 
+        }
         if (MainFrame.isAdmin()) {
             // Si es un administrador
             profile.typeUser.setText("Admin");
@@ -83,12 +81,48 @@ public class Profile extends javax.swing.JPanel {
             profile.attr2.setText("");
             profile.image.setText("");
             profile.image.setIcon(new ImageIcon("./src/Data/default.jpg"));
+            profile.orders.setText("All Orders");
+            
+            profile.changePicture.setVisible(false);
+            profile.newTransaction.setVisible(false);
         }
-        
+
         MainFrame.orders.setEnabled(true);
-        MainFrame.newTransaction.setEnabled(true);
+        MainFrame.newTransaction.setEnabled(MainFrame.isAdmin() ? false : true);
     }
-    
+
+    public void setImage(File f) {
+        // Cambia el icono de la imagen
+        this.image.setIcon(new ImageIcon(f.getAbsolutePath()));
+    }
+
+    public static void closeSession() {
+        // Reseteamos valores de las labels
+        profile.typeUser.setText("TypeOfUser");
+        profile.name.setText("Name");
+        profile.attr1Name.setText("Attr1:");
+        profile.attr1.setText("attr1");
+        profile.attr2Name.setText("Attr2:");
+        profile.attr2.setText("attr2");
+        profile.image.setText("Image");
+        profile.image.setIcon(null);
+
+        // Reseteamos los botones
+        profile.changePicture.setVisible(true);
+        profile.changeClientNif.setVisible(true);
+        profile.changeRegDate.setVisible(true);
+        profile.newTransaction.setVisible(true);
+        profile.orders.setText("My Orders");
+
+        // Cambiamos de panel y cerramos sesión
+        MainFrame.getMainFrame().changePanel(MainFrame.getLoginPanel());
+        MainFrame.setAdmin(false);
+        MainFrame.changeUserAccess(false);
+        MainFrame.setUser(null);
+        MainFrame.getMainFrame().resetMenu();
+        Login.init();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -105,7 +139,7 @@ public class Profile extends javax.swing.JPanel {
         attr1 = new javax.swing.JLabel();
         attr2Name = new javax.swing.JLabel();
         attr2 = new javax.swing.JLabel();
-        newOrder = new javax.swing.JButton();
+        newTransaction = new javax.swing.JButton();
         orders = new javax.swing.JButton();
         exit = new javax.swing.JButton();
         changePicture = new javax.swing.JButton();
@@ -133,10 +167,10 @@ public class Profile extends javax.swing.JPanel {
         attr2.setText("attr2");
         attr2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        newOrder.setText("New Order");
-        newOrder.addActionListener(new java.awt.event.ActionListener() {
+        newTransaction.setText("New Transaction");
+        newTransaction.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newOrderActionPerformed(evt);
+                newTransactionActionPerformed(evt);
             }
         });
 
@@ -193,10 +227,11 @@ public class Profile extends javax.swing.JPanel {
                                     .addComponent(exit))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(newOrder)
-                                    .addComponent(orders)
                                     .addComponent(changeRegDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(changeClientNif, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
+                                    .addComponent(changeClientNif, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(orders, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(newTransaction, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
                 .addContainerGap(353, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -210,7 +245,7 @@ public class Profile extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(orders, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(newOrder)))
+                        .addComponent(newTransaction)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(changePicture, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -231,7 +266,8 @@ public class Profile extends javax.swing.JPanel {
                 .addGap(10, 10, 10))
         );
     }// </editor-fold>//GEN-END:initComponents
-    
+
+    // <editor-fold defaultstate="collapsed" desc="Event Listeners">
     private void exitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitMouseClicked
         // Cerrar sesión
         closeSession();
@@ -254,48 +290,18 @@ public class Profile extends javax.swing.JPanel {
         MainFrame.getMainFrame().changePanel(MainFrame.getOrdersPanel());
         MainFrame.orders.setEnabled(false);
         MainFrame.profile.setEnabled(true);
+        Orders.init();
     }//GEN-LAST:event_ordersActionPerformed
 
-    private void newOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newOrderActionPerformed
+    private void newTransactionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTransactionActionPerformed
         // Cambia al panel NewTransaction
         MainFrame.getMainFrame().changePanel(MainFrame.getNewTransactionPanel());
         MainFrame.profile.setEnabled(true);
         MainFrame.newTransaction.setEnabled(false);
-    }//GEN-LAST:event_newOrderActionPerformed
+        NewTransaction.init();
+    }//GEN-LAST:event_newTransactionActionPerformed
 
-    public void setImage(File f) {
-        // Cambia el icono de la imagen
-        this.image.setIcon(new ImageIcon(f.getAbsolutePath()));
-    }
-    
-    public static void closeSession() {
-        // Reseteamos valores de las labels
-        profile.typeUser.setText("TypeOfUser");
-        profile.name.setText("Name");
-        profile.attr1Name.setText("Attr1:");
-        profile.attr1.setText("attr1");
-        profile.attr2Name.setText("Attr2:");
-        profile.attr2.setText("attr2");
-        profile.image.setText("Image");
-        profile.image.setIcon(null);
-
-        // Reseteamos los botones
-        profile.changePicture.setVisible(true);
-        profile.changeClientNif.setVisible(true);
-        profile.changeRegDate.setVisible(true);
-        profile.newOrder.setVisible(true);
-        profile.orders.setText("My Orders");
-
-        // Cambiamos de panel y cerramos sesión
-        MainFrame.getMainFrame().changePanel(MainFrame.getLoginPanel());
-        MainFrame.setAdmin(false);
-        MainFrame.changeUserAccess(false);
-        MainFrame.setUser(null);
-        MainFrame.getMainFrame().resetMenu();
-        Login.init();
-    }
-    
-    
+    // </editor-fold>
     private JFileChooser fileChooser;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attr1;
@@ -308,7 +314,7 @@ public class Profile extends javax.swing.JPanel {
     private javax.swing.JButton exit;
     private javax.swing.JLabel image;
     private javax.swing.JLabel name;
-    private javax.swing.JButton newOrder;
+    private javax.swing.JButton newTransaction;
     private javax.swing.JButton orders;
     private javax.swing.JLabel typeUser;
     // End of variables declaration//GEN-END:variables
