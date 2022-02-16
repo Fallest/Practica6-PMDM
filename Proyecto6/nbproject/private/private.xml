@@ -2,6 +2,10 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group name="UD07"/>
+        <group>
+            <file>file:/C:/Users/David/Documents/2-DAM/PMDM/Práctica06/Proyecto6/src/Data/dbase.sql</file>
+            <file>file:/C:/Users/David/Documents/2-DAM/PMDM/Práctica06/Proyecto6/src/Controller/ClientManager.java</file>
+            <file>file:/C:/Users/David/Documents/2-DAM/PMDM/Práctica06/Proyecto6/src/View/Profile.java</file>
+        </group>
     </open-files>
 </project-private>
